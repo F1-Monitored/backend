@@ -1,0 +1,21 @@
+driver_code,driver_name,team,grid_position,finish_position,race_time_status
+HAM,Lewis Hamilton,Mercedes,2,1,0 days 01:22:27.059000
+VER,Max Verstappen,Red Bull Racing,4,2,0 days 00:00:01.465000
+NOR,Lando Norris,McLaren,3,3,0 days 00:00:07.547000
+PIA,Oscar Piastri,McLaren,5,4,0 days 00:00:12.429000
+SAI,Carlos Sainz,Ferrari,7,5,0 days 00:00:47.318000
+HUL,Nico Hulkenberg,Haas F1 Team,6,6,0 days 00:00:55.722000
+STR,Lance Stroll,Aston Martin,8,7,0 days 00:00:56.569000
+ALO,Fernando Alonso,Aston Martin,10,8,0 days 00:01:03.577000
+ALB,Alexander Albon,Williams,9,9,0 days 00:01:08.387000
+TSU,Yuki Tsunoda,RB,13,10,0 days 00:01:19.303000
+SAR,Logan Sargeant,Williams,12,11,0 days 00:01:28.960000
+MAG,Kevin Magnussen,Haas F1 Team,17,12,0 days 00:01:30.153000
+RIC,Daniel Ricciardo,RB,15,13,0 days 00:00:09.937000
+LEC,Charles Leclerc,Ferrari,11,14,0 days 00:00:40.473000
+BOT,Valtteri Bottas,Kick Sauber,16,15,0 days 00:00:41.821000
+OCO,Esteban Ocon,Alpine,18,16,0 days 00:00:10.682000
+PER,Sergio Perez,Red Bull Racing,20,17,0 days 00:00:18.005000
+ZHO,Guanyu Zhou,Kick Sauber,14,18,0 days 00:00:54.476000
+RUS,George Russell,Mercedes,1,19,Retired
+GAS,Pierre Gasly,Alpine,19,20,Did not start
