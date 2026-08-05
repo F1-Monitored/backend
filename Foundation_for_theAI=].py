@@ -20,10 +20,10 @@ Typical usage
 
 """
 import json
-from turtle import pd
-from turtle import pd
 import numpy as np
 import pandas as pd
+
+
 def file_to_df(name):
     data = pd.read_csv(name)
     return data
