@@ -336,7 +336,7 @@ if __name__ == "__main__":
     laps = file_to_df("silverstone_2024_R_laps.csv")
 
     report = build_strategy_report(laps, save_prefix="silverstone_2024_r_strategy")
-
+    print(report)
 #    print(report["driver_strategy_summary"])
 #    print()
 #    print(report["pit_stops"])
