@@ -23,6 +23,8 @@ import json
 import numpy as np
 import pandas as pd
 
+from tyre_analysis import TyrePerformanceAnalyzer
+
 
 def file_to_df(name):
     data = pd.read_csv(name)
@@ -105,44 +107,6 @@ def build_stint_table(laps_df) :
         .reset_index(drop=True)
     )
     return stints
-
-
-def compute_stint_pace(laps_df,exclude_pit_laps= True, min_laps_for_trend=3):
-    """
-    Basic tyre-performance fallback computed directly from lap times.
-
-    For each driver-stint: average clean lap time, and a rough
-    degradation trend (seconds/lap slope across the stint, via a simple
-    linear fit). Excludes pit in/out laps by default since those lap
-    times are compromised and would distort the trend.
-
-    If you have a proper external tyre_performance_df (e.g. from
-    telemetry or a dedicated model), pass it into build_strategy_report()
-    instead — this is just a reasonable default when you don't.(This is AI explanation, you guy can take a view, it's really helpful)
-    """
-    df = laps_df.copy()
-    if exclude_pit_laps and "is_pit_lap" in df.columns:
-        df = df[~df["is_pit_lap"].fillna(False)]
-    df = df.dropna(subset=["lap_time_sec", "stint"])
-
-    records = []
-    for (driver, stint), g in df.groupby(["driver", "stint"]):
-        g = g.sort_values("lap")
-        avg_lap_time = g["lap_time_sec"].mean()
-        if len(g) >= min_laps_for_trend:
-            x = np.arange(len(g))
-            slope = float(np.polyfit(x, g["lap_time_sec"], 1)[0])
-        else:
-            slope = np.nan
-        records.append({
-            "driver": driver,
-            "stint": stint,
-            "clean_laps_used": len(g),
-            "avg_lap_time_sec": avg_lap_time,
-            "degradation_sec_per_lap": slope,
-        })
-
-    return pd.DataFrame(records)
 
 
 # 3. Pit stop timeline (pit stops + stint pace context)
@@ -301,7 +265,17 @@ def build_strategy_report(laps_df,tyre_performance_df = None,position_window= 2,
     """
     pit_stops = extract_pit_stops(laps_df)
     stints = build_stint_table(laps_df)
-    pace = compute_stint_pace(laps_df)
+
+    pace = TyrePerformanceAnalyzer(laps_df).process_stints().rename(columns={
+        "Driver": "driver",
+        "Stint": "stint",
+        "Clean Laps Evaluated": "clean_laps_used",
+        "Avg Lap Time": "avg_lap_time_sec",
+        "Degradation Rate (s/lap)": "degradation_sec_per_lap",
+    })
+    pace_cols = ["driver", "stint", "clean_laps_used", "avg_lap_time_sec", "degradation_sec_per_lap"]
+    pace = pace[pace_cols] if not pace.empty else pd.DataFrame(columns=pace_cols)
+
     stints = stints.merge(pace, on=["driver", "stint"], how="left")
 
     if tyre_performance_df is not None:
