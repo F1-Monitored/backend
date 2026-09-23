@@ -1,266 +1,395 @@
-# f1-monitored
 F1 Monitored — Backend
 
-Real motorsport data → analysis → simulation → strategy
+From race data to race strategy.
 
-The backend of F1 Monitored is a Python-based motorsport analytics and simulation system designed to process Formula 1 race data and transform it into meaningful race, tyre, strategy and performance insights.
+F1 Monitored is a motorsport analytics and simulation system built around a simple question:
 
-It provides the data-processing, analysis, simulation and API infrastructure that powers the F1 Monitored platform.
+Given what we know about a race, can we reconstruct its changing state, evaluate alternative strategic decisions, and simulate what could have happened?
 
-⸻
+The backend turns publicly available Formula 1 data into the analytical foundation required to investigate that question.
 
-Overview
-
-F1 Monitored combines publicly available Formula 1 data with data-processing and modelling techniques to reconstruct and analyse race events.
-
-The backend is responsible for transforming raw session data into structured information that can be used to investigate questions such as:
-
-* How did tyre performance evolve throughout a stint?
-* How did pit stops affect race position and race time?
-* How did race pace change throughout an event?
-* How did different strategies influence race outcomes?
-* What could have happened under alternative strategy decisions?
-* How can race data be transformed into information suitable for simulation and optimisation?
-
-The backend is designed as a modular system so that individual components can be developed, tested and improved independently.
-
-⸻
-
-System Architecture
-
-The backend follows a processing pipeline in which raw motorsport data is progressively transformed into higher-level analysis and simulation outputs.
-
-                    Formula 1 Session Data
-                             │
-                             ▼
-                       Data Ingestion
-                             │
-                             ▼
-                    Data Processing
-                             │
-              ┌──────────────┼──────────────┐
-              ▼              ▼              ▼
-        Lap Analysis    Pit & Stint     Tyre Analysis
-                           Analysis
-              │              │              │
-              └──────────────┼──────────────┘
-                             ▼
-                       Race Dynamics
-                             │
-                             ▼
-                       Strategy Engine
-                             │
-                             ▼
-                         Simulation
-                             │
-                             ▼
-                    Analysis / Optimisation
-                             │
-                             ▼
-                      API / Frontend
-
-The exact implementation and module structure are documented within the repository.
+REAL RACE DATA
+      ↓
+RECONSTRUCT THE RACE
+      ↓
+UNDERSTAND TYRES, STINTS & PACE
+      ↓
+MODEL THE RACE STATE
+      ↓
+GENERATE STRATEGIES
+      ↓
+SIMULATE ALTERNATIVES
+      ↓
+COMPARE & OPTIMISE
 
 ⸻
 
-Core Capabilities
+What we’re building
 
-🏁 Race Data Processing
+A Formula 1 race is not simply a sequence of laps.
 
-The backend retrieves and processes Formula 1 session data to create structured datasets suitable for analysis.
+Every lap changes the strategic situation.
 
-This includes information such as:
+Tyres age.
+Gaps open and close.
+Pit windows appear and disappear.
+Traffic changes the value of an undercut.
+A safety car can completely change the strategic landscape.
 
-* Lap times
-* Lap numbers
-* Driver and team information
-* Tyre compounds
-* Stint information
-* Pit stops
-* Race position
-* Sector performance
-* Session information
-* Other available race telemetry and timing data
+F1 Monitored is designed to turn the available race data into a representation of these changing conditions.
 
-The processing layer provides a consistent foundation for the analysis modules.
+The backend therefore sits at the centre of the project:
 
-⸻
-
-🛞 Tyre Analysis
-
-The tyre-analysis system investigates how tyre performance changes throughout a stint.
-
-The analysis can be used to examine relationships between:
-
-* Tyre compound
-* Tyre age
-* Lap time
-* Stint length
-* Race pace
-* Degradation
-
-The purpose is to convert observed race data into information that can be used by higher-level race and strategy models.
-
-⸻
-
-🔧 Pit Stop & Stint Analysis
-
-Pit stops and tyre stints are reconstructed from race data to provide a representation of how teams managed their tyres throughout a race.
-
-This allows the system to investigate:
-
-* Pit-stop timing
-* Stint lengths
-* Compound selections
-* Strategy sequences
-* Position changes associated with pit stops
-* Race progression between strategic decisions
+                    FORMULA 1 DATA
+                          │
+                          ▼
+                 ┌─────────────────┐
+                 │ Data Processing │
+                 └────────┬────────┘
+                          │
+             ┌────────────┼────────────┐
+             ▼            ▼            ▼
+          TYRES        STINTS        PIT STOPS
+             │            │            │
+             └────────────┼────────────┘
+                          ▼
+                   RACE DYNAMICS
+                          │
+                          ▼
+                  STRATEGY ENGINE
+                          │
+                          ▼
+                     SIMULATION
+                          │
+                          ▼
+                    OPTIMISATION
+                          │
+                          ▼
+                       API
+                          │
+                          ▼
+                      FRONTEND
 
 ⸻
 
-📈 Race Dynamics
+Motorsport Analysis
 
-Race-dynamics analysis combines lap-level and race-level information to examine how a race developed over time.
+🛞 Tyre behaviour
 
-This can include:
+Tyre performance is one of the fundamental inputs into race strategy.
 
-* Pace evolution
-* Gaps between drivers
-* Position changes
-* Stint behaviour
-* Strategic interactions
-* Race-state changes
+F1 Monitored analyses available race data to investigate how lap performance changes with:
 
-The goal is to provide the information required to understand why the race developed the way it did, rather than simply reporting the final classification.
+* compound
+* tyre age
+* stint length
+* race pace
+* degradation
+* driver
+* race conditions where available
+
+The output is not treated as an isolated graph.
+
+Tyre behaviour becomes an input to the wider race model and strategy system.
+
+Lap Performance
+       ↓
+Tyre Age
+       ↓
+Stint Behaviour
+       ↓
+Degradation
+       ↓
+Strategic Consequences
 
 ⸻
 
-♟️ Strategy Engine
+🔧 Stints & pit stops
 
-The strategy engine uses processed race information to investigate alternative strategic decisions.
+A strategy is ultimately a sequence of decisions.
 
-Depending on the scenario being analysed, the system can consider factors such as:
+The backend reconstructs the tyre stints and pit stops that formed the actual race, allowing the system to analyse:
 
-* Tyre compounds
-* Stint lengths
-* Pit-stop timing
-* Race pace
-* Tyre behaviour
-* Current race state
+* when a car stopped
+* which compound was fitted
+* how long each stint lasted
+* how race position changed
+* how the race evolved around the pit stop
 
-The strategy layer provides the foundation for evaluating alternative race scenarios.
+This creates the historical race state against which alternative strategies can be investigated.
+
+⸻
+
+📈 Race dynamics
+
+Race strategy cannot be evaluated independently from what is happening on track.
+
+The race-dynamics layer combines information such as:
+
+* lap pace
+* driver gaps
+* race position
+* tyre state
+* stint progression
+* pit stops
+* strategic decisions
+
+The objective is to represent how the race was changing, not simply what the final classification looked like.
+
+⸻
+
+Strategy & Simulation
+
+♟️ Strategy engine
+
+The strategy engine takes the reconstructed race state and investigates possible strategic decisions.
+
+Depending on the scenario, this can involve variables such as:
+
+* compound selection
+* stint length
+* pit-stop timing
+* number of stops
+* tyre condition
+* race pace
+* current race state
+
+The important distinction is that the system is not limited to analysing the strategy that actually happened.
+
+It can investigate alternatives.
 
 ⸻
 
 🔬 Simulation
 
-The backend can use processed race information and strategy assumptions to simulate alternative scenarios.
+Simulation is where the project moves from:
 
-Instead of only analysing what actually happened, the simulation layer allows the system to investigate:
+“What happened?”
 
-What might the race have looked like if a different decision had been made?
+to:
 
-Simulation outputs can then be compared with observed race behaviour.
+“What could have happened?”
+
+A strategy can be altered and evaluated against the reconstructed race conditions.
+
+For example:
+
+Observed Race
+     │
+     ├── Actual Strategy
+     │
+     ├── Alternative Strategy A
+     │
+     ├── Alternative Strategy B
+     │
+     └── Alternative Strategy C
+              │
+              ▼
+          SIMULATION
+              │
+              ▼
+       Compare Outcomes
+
+This provides the foundation for strategic what-if analysis.
 
 ⸻
 
-🤖 AI Context Generation
+⚙️ Optimisation
 
-F1 Monitored also includes an AI-context generation component.
+The optimisation layer builds on simulation.
 
-Rather than treating AI as the source of the underlying race data, the backend prepares structured race information and analytical context that can be supplied to AI-powered features.
+Instead of evaluating one predefined strategy, the system can explore multiple possible strategies and compare their simulated outcomes.
 
-This creates a separation between:
+Conceptually:
 
-Raw Data
+RACE STATE
+    ↓
+STRATEGY SEARCH SPACE
+    ↓
+┌────────┬────────┬────────┐
+│ Strat A│ Strat B│ Strat C│ ...
+└───┬────┴───┬────┴───┬────┘
+    │        │        │
+    └────────┼────────┘
+             ↓
+         SIMULATION
+             ↓
+       OUTCOME METRICS
+             ↓
+         COMPARISON
+             ↓
+       OPTIMISATION
+
+The optimisation layer therefore depends on the quality of the preceding data processing, modelling and simulation stages.
+
+⸻
+
+Data
+
+Data source
+
+F1 Monitored uses FastF1 to access publicly available Formula 1 session data.
+
+The backend processes available information including:
+
+* lap timing
+* sector timing
+* tyre compounds
+* tyre stints
+* pit stops
+* race position
+* driver information
+* team information
+* session information
+* available telemetry
+
+The data pipeline is designed so that raw session information can be transformed into consistent inputs for the analytical modules.
+
+⸻
+
+AI Context
+
+AI functionality is built on top of the analytical pipeline, rather than replacing it.
+
+The backend prepares structured race information that can be passed to AI-powered features.
+
+RAW DATA
    ↓
-Engineering Analysis
+DATA PROCESSING
    ↓
-Structured Context
+RACE ANALYSIS
    ↓
-AI Interpretation
+STRATEGY / SIMULATION
+   ↓
+STRUCTURED CONTEXT
+   ↓
+AI
 
-This allows the analytical components to remain grounded in the underlying race data.
-
-⸻
-
-🌐 API
-
-The backend exposes functionality through an API layer so that the frontend can interact with the underlying data-processing and analysis systems.
-
-The API acts as the interface between the backend’s analytical systems and the F1 Monitored frontend.
+This separation keeps the underlying race analysis grounded in the actual processed data.
 
 ⸻
 
-Data Pipeline
+Engineering Approach
 
-The general data flow is:
+F1 Monitored is built around several principles.
 
-FastF1
-  │
-  ▼
-Session Data
-  │
-  ▼
-Data Cleaning & Processing
-  │
-  ▼
-Lap / Pit / Stint Data
-  │
-  ├──────────────► Tyre Analysis
-  │
-  ├──────────────► Race Dynamics
-  │
-  └──────────────► Strategy Analysis
-                         │
-                         ▼
-                     Simulation
-                         │
-                         ▼
-                   API Responses
-                         │
-                         ▼
-                      Frontend
+Data before conclusions
 
-This separation allows raw data processing, analytical models and API functionality to be developed independently.
+Race insights should originate from processed race data rather than unsupported assumptions.
+
+Models should be explainable
+
+Where the system estimates a quantity or makes a strategic comparison, the underlying assumptions should be inspectable.
+
+Simulation should reflect its assumptions
+
+A simulated outcome is only as meaningful as the model behind it. The project therefore documents the assumptions and limitations of its models.
+
+Results should be validated
+
+Where possible, simulated or reconstructed results are compared against observed race behaviour.
+
+Modular development
+
+Data processing, analysis, strategy, simulation and API functionality are separated so individual components can be developed and tested independently.
 
 ⸻
 
-Technology Stack
+Validation & Limitations
 
-The backend is primarily built using:
+F1 Monitored works with publicly available data.
+
+A Formula 1 team has access to substantially more information than is available through public sources, including proprietary telemetry, vehicle models, tyre models and internal race-engineering systems.
+
+F1 Monitored therefore does not attempt to claim the fidelity of a professional team’s internal simulator.
+
+Instead, the project treats these limitations as part of the engineering problem.
+
+Areas requiring approximation may include:
+
+* tyre degradation
+* traffic
+* overtaking
+* car performance
+* race-state estimation
+* strategic interactions
+* effects that cannot be directly observed from public data
+
+Validation is used to understand where the models reproduce observed behaviour and where they diverge.
+
+⸻
+
+Backend Architecture
+
+The backend is divided into several logical stages:
+
+                    FASTF1
+                      │
+                      ▼
+               DATA INGESTION
+                      │
+                      ▼
+              DATA PROCESSING
+                      │
+          ┌───────────┼───────────┐
+          ▼           ▼           ▼
+        LAPS        STINTS      PIT STOPS
+          │           │           │
+          └───────────┼───────────┘
+                      ▼
+                TYRE ANALYSIS
+                      │
+                      ▼
+                RACE DYNAMICS
+                      │
+                      ▼
+               STRATEGY ENGINE
+                      │
+                      ▼
+                  SIMULATION
+                      │
+                      ▼
+                OPTIMISATION
+                      │
+              ┌───────┴───────┐
+              ▼               ▼
+        AI CONTEXT          FASTAPI
+                              │
+                              ▼
+                          FRONTEND
+
+⸻
+
+Technology
 
 Technology	Purpose
-Python	Core backend and analytical development
-FastF1	Formula 1 data access and session analysis
+Python	Backend development and analytical modelling
+FastF1	Formula 1 data access
 Pandas	Data processing and analysis
-FastAPI	Backend API
 NumPy	Numerical computation
-[Add other libraries used by the project]	[Purpose]
-
-The technology list should be updated as the backend develops.
+FastAPI	API layer
+[Other project dependencies]	Supporting functionality
 
 ⸻
 
 Project Structure
 
-The backend is organised into separate components according to their responsibilities.
+The repository separates the major responsibilities of the backend into modular components.
 
 backend/
 │
-├── [data / ingestion modules]
-├── [analysis modules]
-├── [tyre analysis]
-├── [race dynamics]
-├── [strategy]
-├── [simulation]
-├── [AI / context generation]
-├── [API]
+├── data/
+├── analysis/
+├── strategy/
+├── simulation/
+├── ai/
+├── api/
 ├── tests/
+│
 ├── requirements.txt
 └── README.md
 
-The structure above represents the intended separation of responsibilities. The actual directory structure of the repository should be kept as the source of truth.
+The directory structure shown here should be kept synchronized with the actual repository.
 
 ⸻
 
@@ -270,155 +399,73 @@ Requirements
 
 * Python 3.11+
 * Git
-* Internet connection for retrieving available Formula 1 session data
-
-Additional dependencies are listed in the project’s dependency file.
-
-⸻
+* Internet connection for retrieving Formula 1 session data
 
 Installation
 
-Clone the repository:
-
-git clone <REPOSITORY_URL>
+git clone <BACKEND_REPOSITORY_URL>
 cd backend
-
-Create a virtual environment:
-
 python -m venv .venv
-
-Activate it.
-
-macOS / Linux
-
 source .venv/bin/activate
+pip install -r requirements.txt
 
-Windows
+For Windows:
 
 .venv\Scripts\activate
-
-Install dependencies:
-
-pip install -r requirements.txt
 
 ⸻
 
 Environment Variables
 
-If environment variables are required, create a local .env file based on the project’s example configuration:
+If the backend requires environment variables, create a local .env file based on:
 
 .env.example
 
-Do not commit API keys, credentials or other secrets to the repository.
+Never commit credentials, API keys or other sensitive configuration to the repository.
 
 ⸻
 
-Running the Backend
+Running the API
 
-Start the API using the project’s configured FastAPI entry point.
+The backend uses FastAPI as its API layer.
 
-For example:
+The application can be started using the project’s configured entry point.
+
+Example:
 
 uvicorn <module>:app --reload
 
-The exact command should match the current backend entry point.
-
-Once running, the API documentation can be accessed through the FastAPI documentation interface.
-
-⸻
-
-API
-
-The API provides the interface through which the frontend communicates with the backend.
-
-It exposes functionality for retrieving and processing the analytical outputs generated by the backend.
-
-As the API develops, endpoint documentation should include:
-
-Endpoint	Method	Purpose
-/...	GET	…
-/...	POST	…
-
-Endpoint documentation should be kept synchronized with the implemented API.
+Once running, the API documentation provided by FastAPI can be used to inspect and test available endpoints.
 
 ⸻
 
 Testing
 
-Tests are used to verify important components of the backend and reduce the risk of changes affecting existing functionality.
+Testing is used to verify the behaviour of important backend components.
 
-Run the project’s test suite using the configured testing framework.
+Areas of interest include:
 
-Example:
+* data processing
+* tyre analysis
+* race analysis
+* strategy calculations
+* simulation
+* API functionality
+
+Where configured:
 
 pytest
-
-Testing should cover critical areas such as:
-
-* Data processing
-* Tyre analysis
-* Strategy calculations
-* Simulation logic
-* API behaviour
-
-⸻
-
-Validation
-
-Because F1 Monitored works with real-world motorsport data, model validation is an important part of the project.
-
-Where possible, simulated and analytical outputs should be compared against observed race data.
-
-Validation can be used to investigate:
-
-* Whether reconstructed race states match the observed race
-* Whether tyre behaviour is represented reasonably
-* Whether strategy simulations produce plausible outcomes
-* Where model assumptions introduce differences from reality
-
-Detailed validation studies will be documented as the project develops.
-
-⸻
-
-Limitations
-
-F1 Monitored is built using publicly available motorsport data and therefore does not have access to the complete datasets, models or internal information available to Formula 1 teams.
-
-Consequently, the system may simplify or approximate aspects of real-world race modelling.
-
-Potential limitations include:
-
-* Limited access to proprietary telemetry
-* Simplified tyre-degradation modelling
-* Simplified traffic and overtaking behaviour
-* Uncertainty in estimating race-state variables
-* Simplifications in strategy simulation
-* Differences between publicly available timing data and a team’s internal datasets
-
-Documenting these limitations is an important part of evaluating the system’s results.
 
 ⸻
 
 Frontend
 
-The F1 Monitored frontend provides the user-facing interface for the analytical capabilities developed by this backend.
+The backend is part of the wider F1 Monitored GitHub Organization.
 
-The frontend and backend are maintained as separate repositories within the F1 Monitored GitHub Organization.
+The frontend is maintained separately and communicates with this backend through the API.
 
-Frontend:
+Frontend repository:
 <FRONTEND_REPOSITORY_URL>
-
-⸻
-
-Development Philosophy
-
-F1 Monitored is being developed around the principle:
-
-Real motorsport data → engineering analysis → simulation → optimisation
-
-The project aims to combine software engineering, data analysis and motorsport modelling into a single system capable of investigating real race scenarios.
-
-The focus is not simply on displaying historical Formula 1 statistics, but on building a system in which data can be processed, analysed and used to investigate alternative race scenarios.
 
 ⸻
 
@@ -426,25 +473,26 @@ Project Status
 
 F1 Monitored is an actively developed project.
 
-The backend is being continuously improved through:
+Current development focuses on improving the complete pipeline from:
 
-* Additional analysis capabilities
-* Model refinement
-* Testing and validation
-* API development
-* Documentation
-* Integration with the frontend
+motorsport data → analysis → modelling → simulation → optimisation
+
+while maintaining and expanding the existing functionality of the platform.
 
 ⸻
 
-Contributors
+Team
 
-F1 Monitored is developed collaboratively by its project team.
+F1 Monitored is a collaborative project developed by its project team.
 
-See the repository’s contributor history for individual contributions.
+Individual contributions can be inspected through the Git history and repository contribution records.
 
 ⸻
 
-License
+The objective
 
-[Add project license here]
+The project is ultimately built around one idea:
+
+Use real motorsport data to understand the race, model the decisions, and investigate what could have happened differently.
+
+⸻
